@@ -5,6 +5,24 @@ if getgenv().DESYNC == nil then
     getgenv().DESYNC = false
 end
 
+local originalTransparency = {}
+
+local function setCharacterTransparency(value)
+    local char = plr.Character
+    if not char then return end
+
+    for _, v in ipairs(char:GetDescendants()) do
+        if v:IsA("BasePart") and v.Transparency ~= 1 then
+            if value == 0.5 then
+                originalTransparency[v] = v.Transparency
+                v.Transparency = 0.5
+            else
+                v.Transparency = originalTransparency[v] or 0
+            end
+        end
+    end
+end
+
 local function createBox(pos)
     local box = Instance.new("Part")
     box.Name = "desync_box"
@@ -27,6 +45,8 @@ local function toggleDesync()
     if getgenv().DESYNC then
         local savedPos = char.HumanoidRootPart.Position
 
+        setCharacterTransparency(0.5)
+
         local Seat = Instance.new("Seat")
         Seat.Parent = workspace
         Seat.Name = "invischair"
@@ -45,6 +65,8 @@ local function toggleDesync()
 
         createBox(savedPos)
     else
+        setCharacterTransparency(0)
+
         if workspace:FindFirstChild("invischair") then
             workspace.invischair:Destroy()
         end
